@@ -1,0 +1,212 @@
+NicVybrano = "neni NIC vybrano"
+nenispline = "neni SPLINE"
+neniPoly = "neni POLY"
+
+
+try(destroyDialog splineotoc)catch() 
+
+
+
+
+rollout splineotoc "Untitled" width:162 height:300
+(
+	label lbl1 "SPLINE AKCE " border:true
+	button OtocSpline "Zaoblit" border: true
+	label lbl_cara_1 "-" border:true
+	button vseNaCorner "Vse na Corner" border:true
+	label lbl_cara_2 "-" border:true
+	button vertexOFF "Vertex OFF" border:true
+	button vertexON "Vertex ON" border:true
+	label lbl_vertexspoj "POLY AKCE" border:true
+	label lbl_cara_4 "-" border:true
+	button vertexSpojit "WELD VERTEX 0,001" border:true
+	label lbl_cara_5 "-" border:true
+	label lb_ID_plygon "vyber objekt" border:true
+	label lb_ID_plygon2 "zmeni ID  u vsech polygonu " border:true
+	label lbl_cara_3 "-" border:true
+	
+	button bt_sterk "Sterk" border:true
+	button bt_trava "Trava" border:true
+	button bt_opevneni "Opevneni" border:true
+	label lbl_cara_6 "-" border:true
+	label lbl7 "Multiscatter " border:true
+	button MultiOFF "Auto-update OFF" border:true
+	button MultiON "Auto-update ON" border:true
+	
+	
+	
+	
+	----SPLINE----
+	
+	on OtocSpline pressed do
+	
+	(
+		if selection.count != 0 
+		
+		then(
+				for i in selection do ---tento radek je mozne smazat(pak ale zmenit I na $)
+				if superClassof i == shape
+					then
+					(
+						
+						subobjectlevel = 1
+						setKnotType i 1 1 (#corner )
+						setKnotType i 1 2 (#corner )
+						setKnotType i 1 3 (#corner )
+						setKnotType i 1 4 (#corner )
+						updateShape i
+						--subobjectlevel = 0
+						
+						--reverse $ 1
+						--subobjectlevel = 1
+						setKnotSelection i 1 #(2) 
+						setKnotType i 1 2 (#bezier )
+						updateShape i
+						--subobjectlevel = 0
+						
+						reverse i 1
+						--subobjectlevel = 1
+						setKnotSelection i 1 #(2) 
+						setKnotType i 1 2 (#bezier )
+						updateShape i
+						subobjectlevel = 0
+					
+					)
+					
+					else 
+						(messageBox nenispline )
+				)	
+		else 
+				(messageBox nicvybrano)
+								
+	
+		--else (messagebox "___select obejct!!!___"; exit)
+	)
+	
+	
+	on vseNaCorner pressed do
+		
+		if selection.count != 0 
+		
+			then(
+					for r in selection do --radek mozno smazat
+					if superClassof r == shape --overi ze je shape
+					then(
+								--shp = selection[1]
+								for i=1 to numsplines r do 
+								(
+								for j=1 to numknots r i do setKnotType r i j #corner
+								)
+								updateShape r
+							)
+					else 	(
+					messageBox nenispline 
+						)
+						)
+			else 
+				(messageBox nicvybrano)
+	
+	
+----ID POLYGONU-----
+-----------------------
+	on bt_sterk pressed do
+		
+		if selection.count == 0 
+		
+		then 
+	(
+			messageBox "neni nic vybrano" title: "vyber" false
+	)	
+		else 
+	(
+
+	for i in selection do 
+	polyop.setFaceMatID i  #{1..i.numfaces} 5
+	)
+--------------------------------------
+	on bt_trava pressed do
+			if selection.count == 0 
+		
+		then 
+	(
+			messageBox "neni nic vybrano" title: "vyber" false
+	)	
+		else 
+	(
+
+	for i in selection do 
+	polyop.setFaceMatID i  #{1..i.numfaces} 4
+	)
+------------------------------------------------
+	on bt_opevneni pressed do
+		if selection.count == 0 
+		
+		then 
+	(
+			messageBox "neni nic vybrano" title: "vyber" false
+	)	
+		else 
+	(
+
+	for i in selection do 
+	polyop.setFaceMatID i  #{1..i.numfaces} 7
+	)	
+	
+-----WELD VERTEXY----
+	on vertexSpojit pressed do
+	
+		if selection.count != 0 
+			then
+			( for v in selection do
+				if Classof v == editable_poly 
+				
+					then		
+						(
+						subobjectLevel = 1
+						v.weldThreshold = 0.001
+						subobjectlevel = 0
+						--for i in selection do
+						polyop.weldVertsByThreshold  v #{1..v.numverts}
+						)
+					
+				
+						else 
+						(
+						messageBox "neni POLY" title: "vyber" false
+						)
+			)		
+		
+		
+		else
+			(
+				messageBox "neni nic VYBRANO" title: "vyber" false
+			)	
+			
+	
+----------multiscatter
+			
+	on multiOFF pressed do
+		for i in selection do
+			i.Auto_Update_Preview = off
+		
+	on multiON pressed do
+		for i in selection do
+			i.Auto_Update_Preview = on
+				
+			
+			
+----VERTEX
+	on vertexOFF pressed do
+		for i in selection do
+			i.vertexTicks = OFF
+	
+	on vertexON pressed do
+		for i in selection do
+			i.vertexTicks = ON
+			
+	
+	
+)
+
+
+createdialog splineotoc 120 500
